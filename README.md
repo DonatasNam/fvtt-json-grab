@@ -28,7 +28,9 @@ decisions. Not yet published to the Foundry package listing.
 - Foundry VTT v14.
 - Your Foundry server must be reachable by whoever uses the link (a domain with
   HTTPS through a reverse proxy works great; pure localhost does not).
-- Game Master role (wider access is planned, see PLAN.md milestone 3).
+- Sharing defaults to the GM. A world setting extends it to document owners or to
+  observers; non-GM users also need the core file upload permission, because shares
+  are written with the sharing user's own rights.
 
 ## Installation (development)
 

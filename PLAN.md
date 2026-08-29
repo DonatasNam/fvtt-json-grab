@@ -39,7 +39,7 @@ Agreed 2026-08-29. Any row can be revisited; that is what this section is for.
 | 4 | Versions | **v14 only** (`minimum: 14`, verified against current stable) | Single clean ApplicationV2 code path; easiest to carry into v15 |
 | 5 | Base URL | **Auto** (the address the GM's browser is using) **+ settings override** | Zero config when you connect via your domain; override covers GM-on-LAN edge case |
 | 6 | File lifecycle | **One stable file per document**: `<uuid>-<salt>.json`, unguessable salt stored as a document flag; re-export **overwrites**; revoke blanks the file and rotates the salt. *Superseded in part by decision 14: revocation is now automatic and timed* | No unbounded file growth; revocable |
-| 7 | JSON format | **Foundry-native "Export Data" payload** (toCompendium data + exportSource stamp) | Round-trips through Foundry's built-in *Import Data* |
+| 7 | JSON format | **Foundry-native "Export Data" payload** (toCompendium data + exportSource stamp). *Superseded in part by decision 15: the native format now ships only via the dialog's Download button* | Round-trips through Foundry's built-in *Import Data* |
 | 8 | Tooling | **No build step.** Plain ES modules + vendored single-file MIT QR encoder ([`qrcode-generator`](https://github.com/kazuhikoarase/qrcode-generator) 1.4.4) | Edit-and-refresh dev loop; nothing to install; auditable diffs; same style as the reference module |
 | 9 | Naming | Module id **`json-grab`**, title **"JSON Grab"** (repo keeps the `fvtt-` prefix, mirroring the reference module's convention) | Short, matches the repo, unique enough for the package listing |
 | 10 | Exports folder | Per world: `worlds/<world-id>/json-grab/` | Exports scope naturally to a world; deleting a world's folder cleans its links |
@@ -47,6 +47,9 @@ Agreed 2026-08-29. Any row can be revisited; that is what this section is for.
 | 12 | Manifest authors | `DonnyDash` + GitHub URL (account `DonatasNam`, per the git remote), no email | Email can be added any time; avoids publishing a work address |
 | 13 | Scan experience (added 2026-08-29) | QR and share links point at a module-shipped **download landing page** that names the file after the document and starts the download instantly; raw JSON URL stays available via Copy Raw. Requires a one-line reverse proxy override because Foundry serves Data `.html` as `text/plain` by design; the module **auto-detects** support per session and falls back to raw links without it | Raw JSON in a phone browser felt invasive; landing page keeps the module portable while giving instant downloads where the proxy rule exists |
 | 14 | Ephemeral links (added 2026-08-29, verified same day) | No Revoke button; every share **auto-revokes after a configurable lifetime** (world setting, default 5 minutes) with a live countdown in the dialog. Re-share within the window = same URL, clock reset. The timer runs in the GM client; a **janitor sweep on world load** (active GM only) revokes expired leftovers and re-arms unexpired ones, using a `sharedAt` flag. `api.revoke(doc)` remains for macros. Verified: timer fires and tombstones, sweep revoked three stale test shares on load | Simpler dialog, safer default: links shared at the table die on their own, no forever-links to remember. Trade-off accepted: printed long-lived QRs are no longer a use case |
+| 15 | Module purpose reframed (added 2026-08-29) | The module is **the companion app's payload generator**: shared QR links serve the versioned app schema (docs/app-schema.md) built from PREPARED document data; the native Foundry export remains only behind the dialog's Download button | The offline app is the real product; derived data is what a sheet app needs, and raw source exports (slot max 0 for casters) would force the app to reimplement dnd5e rules |
+| 16 | Player sharing (added 2026-08-29, verified same day) | `exportPermission` unlocked with gm/owner/observer modes (module default stays gm; this world runs owner). Non-GM shares use the player's own FILES_UPLOAD rights; the planned GM socket relay is **dropped** | Every player at this table holds upload permission, so relay complexity buys nothing; shares work even with no GM online |
+| 17 | App platform (added 2026-08-29) | **PWA**, hosted same-origin on the user's nginx (planned `/app`), own repo, service worker + IndexedDB, in-app QR scanner with a JS decoder on iOS | No store friction for friends, fully offline after install, zero CORS, deploys with scp exactly like the module |
 
 ## 3. How it works
 
@@ -190,13 +193,62 @@ by some browsers without a user gesture, which the always-visible download butto
 - [ ] Setting to enable or disable per document type (Actors / Items).
 - [ ] CHANGELOG.md, screenshots in README.
 
-### M3: Player access (after you have tested v1)
-- [ ] `exportPermission` goes live with choices: GM only / Owners / Anyone who can view;
-      consider the built-in `ownership` gate on the control entry for the visibility half.
-- [ ] `"socket": true` + relay: player clicks, socket request goes out, an active GM client
-      re-checks permission, performs the upload, returns the URL, player sees the same dialog.
-      *Known limitation to document: relay needs a GM online; players who themselves hold
-      Foundry's file upload permission bypass the relay.*
+### M3: Player access
+**Done 2026-08-29, simplified by decision 16.** Every player at this table holds Foundry's
+FILES_UPLOAD permission, so the planned GM socket relay was dropped entirely: shares are
+written with the sharing user's own rights and work even with no GM online.
+
+- [x] `exportPermission` live in the settings UI: GM only (default) / GM and owners /
+      GM, owners and observers. This world is set to owners.
+- [x] Non-GM users additionally require the core file upload permission; the same
+      `canExport` gate drives both button visibility and the click path.
+- [x] Verified against the real user list: the owning player can share their PC, the
+      other three cannot, NPCs remain GM-only, all four players hold upload permission.
+- [x] Socket relay: dropped as unnecessary. Tables whose players lack upload permission
+      effectively stay GM-only; the README states this plainly.
+
+### M5: Offline app payload  *(branch `offline-foundry`)*
+Purpose: feed the user's planned **offline companion app** (no logins, no standing
+connection; players scan a QR at the table, the app stores the character locally and
+tracks HP, spell slots, and similar during play).
+
+The core problem M5 solves: the native export is **source data**, while a sheet app needs
+**derived data** (AC, proficiency, skill totals, and spell slots, which dnd5e computes at
+runtime and stores as `max: 0` in source). The module runs inside Foundry, so it can
+serialize the *prepared* actor into a small, stable, versioned schema the app owns:
+
+```jsonc
+{
+  "schemaVersion": 1,
+  "uuid": "Actor.abc...",        // app storage key; re-scan updates, never duplicates
+  "updatedAt": 1724930000000,
+  "name": "...", "img": "https://absolute.url/...",
+  "hp": { "value": 10, "max": 10, "temp": 0 },
+  "ac": 15, "proficiency": 2,
+  "abilities": { "str": { "score": 8, "mod": -1, "save": -1 }, "...": {} },
+  "skills":    { "perception": { "total": 4, "passive": 14 }, "...": {} },
+  "slots":     { "1": { "value": 3, "max": 4 }, "pact": { "value": 1, "max": 2 } },
+  "resources": [ { "label": "...", "value": 2, "max": 3 } ],
+  "items":     [ { "name": "...", "type": "weapon", "uses": { "value": 1, "max": 3 } } ]
+}
+```
+
+Decisions taken 2026-08-29: schema is dnd5e-rich with a generic fallback for other
+systems; **the module is the app's payload generator** (decision 15): the shared file IS
+the schema v1 payload and the native Foundry export remains available via the dialog's
+Download button; party bundle deferred to M6; app platform still open (PWA explained,
+user deciding).
+
+- [x] `docs/app-schema.md`: schema v1 spec, URL contract, sync semantics, versioning rules.
+- [x] `scripts/app-payload.js`: prepared-data mapper, dnd5e isolated in two functions,
+      generic fallback for other systems. Field shapes taken from live dnd5e 5.3.3
+      prepared data, not from memory (saves are nested objects in 5.x, for example).
+- [x] Shared uploads now carry the app payload (native export stays on Download).
+- [x] Verified live 2026-08-29 by anonymous fetch: level 11 bard payload carries derived
+      slot maximums for levels 1 to 6 with real current values, hp/ac/proficiency/saves/
+      skill totals/currency/94 item summaries, absolute image URL; NPC and Item payloads
+      correct; slots block correctly absent for non-casters.
+- [ ] CORS or same-origin hosting guidance in README once the app platform is chosen.
 
 ### M4: Release engineering
 - [ ] `release.yml`: on published GitHub Release, stamp `version`/`download` into
