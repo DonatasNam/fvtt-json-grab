@@ -250,6 +250,19 @@ user deciding).
       correct; slots block correctly absent for non-casters.
 - [ ] CORS or same-origin hosting guidance in README once the app platform is chosen.
 
+### V0.2 backlog: payload additions for the companion app
+Features the app wants that require grabbing more data from Foundry or changing the
+payload mapper. Deferred by decision (2026-08-29): v0.1 app work is bug fixes and UI
+tweaks only; anything touching the payload lands here and ships together as v0.2
+(schema stays version 1 while additions are purely additive).
+
+- [ ] **Miscellaneous traits block** for the app's collapsible card: senses
+      (darkvision etc.), damage resistances / immunities / vulnerabilities, condition
+      immunities, damage modification, armor and weapon proficiencies, languages.
+      Ship as arrays of display strings localized at export time via CONFIG.DND5E
+      lookups (dnd5e nests language and proficiency ids, so map inside Foundry, not in
+      the app). App shows only populated groups and hides the card when all are empty.
+
 ### M4: Release engineering
 - [ ] `release.yml`: on published GitHub Release, stamp `version`/`download` into
       `module.json`, build `module.zip`, attach both to the release. Stable manifest URL:
