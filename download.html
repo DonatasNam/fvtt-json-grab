@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JSON Grab</title>
+<style>
+  :root { color-scheme: dark light; }
+  body {
+    margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: #1b1d24; color: #e8e6e3;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .card {
+    max-width: 420px; width: calc(100% - 32px); padding: 28px 24px; text-align: center;
+    background: #24262e; border: 1px solid #3a3d47; border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.4);
+  }
+  .logo { font-size: .8rem; letter-spacing: .2em; text-transform: uppercase; opacity: .6; margin-bottom: 10px; }
+  h1 { font-size: 1.3rem; margin: 0 0 6px; word-break: break-word; }
+  p { margin: 6px 0 18px; opacity: .75; font-size: .9rem; }
+  .btn {
+    display: inline-block; margin: 4px; padding: 10px 18px; border-radius: 8px;
+    background: #d0a038; color: #1b1d24; font-weight: 600; text-decoration: none;
+  }
+  .btn.secondary { background: transparent; color: #e8e6e3; border: 1px solid #3a3d47; font-weight: 400; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">JSON Grab</div>
+  <h1 id="name">Loading</h1>
+  <p id="status">Fetching document data</p>
+  <a id="dl" class="btn" hidden>Download</a>
+  <a id="raw" class="btn secondary" hidden>View raw JSON</a>
+</div>
+<script>
+(async () => {
+  const nameEl = document.getElementById("name");
+  const status = document.getElementById("status");
+  const dl = document.getElementById("dl");
+  const raw = document.getElementById("raw");
+  const fail = (title, message) => { nameEl.textContent = title; status.textContent = message; };
+
+  // f must be a same-origin absolute path to a .json file; anything else is rejected.
+  const f = new URLSearchParams(location.search).get("f") || "";
+  const safe = f.startsWith("/") && !f.startsWith("//") && !f.includes("..") && !f.includes(":") && f.endsWith(".json");
+  if (!safe) return fail("Invalid link", "This link is malformed.");
+
+  let res = null;
+  try { res = await fetch(f, { cache: "no-store" }); } catch (e) { /* handled below */ }
+  if (!res || !res.ok) return fail("Not found", "The file does not exist or the link was revoked.");
+
+  const text = await res.text();
+  let data = null;
+  try { data = JSON.parse(text); } catch (e) { /* handled below */ }
+  if (!data) return fail("Invalid file", "The linked file is not valid JSON.");
+  if (data.revoked) return fail("Link revoked", "The owner has revoked this link.");
+
+  const docName = data.name || "document";
+  const fileName = docName.replace(/[\\\/:*?"<>|]+/g, "").trim().replace(/\s+/g, "-") + ".json";
+  nameEl.textContent = docName;
+  status.textContent = (Math.round(text.length / 102.4) / 10) + " KB";
+
+  const blobUrl = URL.createObjectURL(new Blob([text], { type: "application/json" }));
+  dl.href = blobUrl;
+  dl.download = fileName;
+  dl.textContent = "Download " + fileName;
+  dl.hidden = false;
+  raw.href = f;
+  raw.hidden = false;
+
+  // Start immediately; browsers that require a tap still show the button.
+  dl.click();
+  status.textContent += " · download should start automatically, tap the button if it does not";
+})();
+</script>
+</body>
+</html>

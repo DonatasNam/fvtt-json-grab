@@ -1,0 +1,32 @@
+﻿{
+  "id": "json-grab",
+  "title": "JSON Grab",
+  "description": "Share any Actor or Item as a QR code and a copyable link that serves the document's JSON export. Scan or paste the link in any browser, curl, or fetch call to grab the file.",
+  "version": "0.1.0",
+  "authors": [
+    {
+      "name": "DonnyDash",
+      "url": "https://github.com/DonatasNam"
+    }
+  ],
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14"
+  },
+  "esmodules": ["scripts/json-grab.js"],
+  "scripts": ["scripts/lib/qrcode.js"],
+  "styles": ["styles/json-grab.css"],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "languages/en.json"
+    }
+  ],
+  "url": "https://github.com/DonatasNam/fvtt-json-grab",
+  "manifest": "https://github.com/DonatasNam/fvtt-json-grab/releases/latest/download/module.json",
+  "download": "https://github.com/DonatasNam/fvtt-json-grab/releases/download/v0.1.0/module.zip",
+  "license": "LICENSE",
+  "readme": "README.md",
+  "bugs": "https://github.com/DonatasNam/fvtt-json-grab/issues"
+}

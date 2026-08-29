@@ -1,0 +1,42 @@
+/* All rules stay under the .json-grab-dialog namespace. */
+
+.json-grab-dialog .json-grab-share {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* QR sizing and its white backing (needed for dark themes) are inline in
+   qr-dialog.js on purpose, so the code stays scannable even when this
+   stylesheet is overridden or fails to load. */
+
+.json-grab-dialog .jg-url {
+  width: 100%;
+  font-family: var(--font-monospace, monospace);
+  font-size: 0.85em;
+}
+
+.json-grab-dialog .jg-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.json-grab-dialog .jg-actions button {
+  flex: 1 1 auto;
+  white-space: nowrap;
+}
+
+.json-grab-dialog .jg-expiry {
+  text-align: center;
+  font-size: 0.85em;
+  opacity: 0.75;
+  margin: 0;
+}
+
+.json-grab-dialog .jg-warning {
+  font-size: 0.85em;
+  color: var(--color-level-warning, #ee9b3a);
+  margin: 0;
+}

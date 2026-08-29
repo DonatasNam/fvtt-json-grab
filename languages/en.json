@@ -1,0 +1,20 @@
+{
+  "JSONGRAB.ShareButton": "Share as QR / JSON Link",
+  "JSONGRAB.DialogTitle": "JSON Grab: {name}",
+  "JSONGRAB.Copy": "Copy",
+  "JSONGRAB.Copied": "JSON Grab: link copied to clipboard.",
+  "JSONGRAB.Download": "Download",
+  "JSONGRAB.ExpiresIn": "Link expires in {time}",
+  "JSONGRAB.Expired": "Link expired. Share again for a fresh one.",
+  "JSONGRAB.Close": "Close",
+  "JSONGRAB.LocalUrlWarning": "This address looks local. Phones and outside devices may not reach it. Set the Base URL override in the module settings.",
+  "JSONGRAB.QrUnavailable": "QR code could not be generated. The link below still works.",
+  "JSONGRAB.ExportFailed": "JSON Grab: export failed. {error}",
+  "JSONGRAB.Settings.BaseUrl.Name": "Base URL override",
+  "JSONGRAB.Settings.BaseUrl.Hint": "Origin used in generated links, for example https://foundry.example.com with no trailing path. Leave blank to use the address your browser is connected with.",
+  "JSONGRAB.Settings.LinkLifetime.Name": "Link lifetime (minutes)",
+  "JSONGRAB.Settings.LinkLifetime.Hint": "Share links revoke themselves automatically after this many minutes. Sharing again within the window resets the clock. Links that outlive your session are cleaned up on the next world load.",
+  "JSONGRAB.Settings.ExportPermission.Name": "Who can share documents",
+  "JSONGRAB.Settings.ExportPermission.Hint": "Locked to Game Master in this version. Wider options arrive in a later release.",
+  "JSONGRAB.Settings.ExportPermission.GM": "Game Master only"
+}
