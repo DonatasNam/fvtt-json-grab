@@ -10,6 +10,7 @@
   "JSONGRAB.LocalUrlWarning": "This address looks local. Phones and outside devices may not reach it. Set the Base URL override in the module settings.",
   "JSONGRAB.QrUnavailable": "QR code could not be generated. The link below still works.",
   "JSONGRAB.ExportFailed": "JSON Grab: export failed. {error}",
+  "JSONGRAB.FolderMissing": "The export folder does not exist yet. Ask your GM to share any document once to create it.",
   "JSONGRAB.Settings.BaseUrl.Name": "Base URL override",
   "JSONGRAB.Settings.BaseUrl.Hint": "Origin used in generated links, for example https://foundry.example.com with no trailing path. Leave blank to use the address your browser is connected with.",
   "JSONGRAB.Settings.LinkLifetime.Name": "Link lifetime (minutes)",

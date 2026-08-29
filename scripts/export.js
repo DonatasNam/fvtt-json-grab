@@ -11,18 +11,19 @@ export function exportDirectory() {
   return `worlds/${game.world.id}/${EXPORT_DIR_NAME}`;
 }
 
-let dirReady = false;
-
+/**
+ * Only GMs may create directories (the server rejects everyone else BEFORE
+ * checking whether the directory exists), so treat creation as best effort:
+ * true when the directory exists or was created.
+ */
 export async function ensureExportDirectory() {
-  if (dirReady) return;
   try {
     await filePicker().createDirectory("data", exportDirectory());
+    return true;
   } catch (err) {
-    // Foundry throws when the directory already exists; that case is fine.
-    const message = String(err?.message ?? err);
-    if (!message.includes("EEXIST") && !message.toLowerCase().includes("already exists")) throw err;
+    const message = String(err?.message ?? err).toLowerCase();
+    return message.includes("eexist") || message.includes("already exists");
   }
-  dirReady = true;
 }
 
 /** Deterministic per document + salt. Uses the uuid so embedded items cannot collide. */
@@ -99,12 +100,32 @@ export function buildLandingUrl(storagePath) {
   return `${getBaseUrl()}${page}?f=${encodeURIComponent(filePath)}`;
 }
 
+let directoryChecked = false;
+
+/**
+ * Upload first: players may not create directories even when they already
+ * exist, so a pre-upload createDirectory would always fail for them. When
+ * the upload itself fails (usually a missing folder on a fresh world), try
+ * to create the directory once (GMs can) and retry.
+ */
 async function uploadContent(fileName, content) {
-  await ensureExportDirectory();
   const file = new File([content], fileName, { type: "application/json" });
-  const result = await filePicker().upload("data", exportDirectory(), file, {}, { notify: false });
-  if (!result?.path) throw new Error(`upload to ${exportDirectory()} was rejected`);
-  return result.path;
+  const doUpload = async () => {
+    const result = await filePicker().upload("data", exportDirectory(), file, {}, { notify: false });
+    if (!result?.path) throw new Error(`upload to ${exportDirectory()} was rejected`);
+    return result.path;
+  };
+  try {
+    return await doUpload();
+  } catch (err) {
+    if (directoryChecked) throw err;
+    directoryChecked = true;
+    const available = await ensureExportDirectory();
+    if (!available && !game.user.isGM) {
+      throw new Error(`${game.i18n.localize("JSONGRAB.FolderMissing")} (${err.message ?? err})`);
+    }
+    return doUpload();
+  }
 }
 
 /* -------------------------------------------- */
