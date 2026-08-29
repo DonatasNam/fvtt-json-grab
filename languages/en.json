@@ -15,6 +15,8 @@
   "JSONGRAB.Settings.LinkLifetime.Name": "Link lifetime (minutes)",
   "JSONGRAB.Settings.LinkLifetime.Hint": "Share links revoke themselves automatically after this many minutes. Sharing again within the window resets the clock. Links that outlive your session are cleaned up on the next world load.",
   "JSONGRAB.Settings.ExportPermission.Name": "Who can share documents",
-  "JSONGRAB.Settings.ExportPermission.Hint": "Locked to Game Master in this version. Wider options arrive in a later release.",
-  "JSONGRAB.Settings.ExportPermission.GM": "Game Master only"
+  "JSONGRAB.Settings.ExportPermission.Hint": "Players also need the core 'Use File Browser' upload permission, because shares are written with the sharing user's own rights.",
+  "JSONGRAB.Settings.ExportPermission.GM": "Game Master only",
+  "JSONGRAB.Settings.ExportPermission.Owner": "GM and document owners",
+  "JSONGRAB.Settings.ExportPermission.Observer": "GM, owners, and observers"
 }

@@ -25,16 +25,17 @@ export function registerSettings() {
     default: 5
   });
 
-  // Registered from day one so stored values survive the milestone 3 upgrade
-  // that adds owner and observer choices plus the GM socket relay.
-  // Hidden from the settings UI until then.
   game.settings.register(MODULE_ID, SETTINGS.EXPORT_PERMISSION, {
     name: "JSONGRAB.Settings.ExportPermission.Name",
     hint: "JSONGRAB.Settings.ExportPermission.Hint",
     scope: "world",
-    config: false,
+    config: true,
     type: String,
-    choices: { gm: "JSONGRAB.Settings.ExportPermission.GM" },
+    choices: {
+      gm: "JSONGRAB.Settings.ExportPermission.GM",
+      owner: "JSONGRAB.Settings.ExportPermission.Owner",
+      observer: "JSONGRAB.Settings.ExportPermission.Observer"
+    },
     default: "gm"
   });
 }

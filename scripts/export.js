@@ -1,5 +1,6 @@
 import { EXPORT_DIR_NAME, FLAG_SALT, FLAG_SHARED_AT, MODULE_ID } from "./constants.js";
 import { getBaseUrl, getLinkLifetimeMs } from "./settings.js";
+import { buildAppPayload } from "./app-payload.js";
 
 function filePicker() {
   return foundry.applications.apps.FilePicker.implementation;
@@ -154,7 +155,9 @@ export async function exportDocument(doc) {
   }
   await doc.update({ [`flags.${MODULE_ID}`]: flags });
   const fileName = exportFileName(doc, salt);
-  const path = await uploadContent(fileName, buildExportPayload(doc));
+  // The shared file IS the app payload (decision 15). The native Foundry
+  // export stays available through the dialog's Download button.
+  const path = await uploadContent(fileName, buildAppPayload(doc));
   const lifetime = getLinkLifetimeMs();
   scheduleExpiry(doc, lifetime);
   return {
