@@ -262,6 +262,10 @@ tweaks only; anything touching the payload lands here and ships together as v0.2
       Ship as arrays of display strings localized at export time via CONFIG.DND5E
       lookups (dnd5e nests language and proficiency ids, so map inside Foundry, not in
       the app). App shows only populated groups and hides the card when all are empty.
+- [ ] **Feature descriptions** (added 2026-08-29): include `description` on feat-type
+      item entries the way spells already carry it, so the app's Feats tab can expand
+      a feature to read what it does (Bardic Inspiration and friends). Consider gear
+      descriptions at the same time, weighing payload size.
 
 ### M4: Release engineering
 - [ ] `release.yml`: on published GitHub Release, stamp `version`/`download` into
