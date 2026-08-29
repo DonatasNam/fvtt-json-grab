@@ -272,6 +272,21 @@ tweaks only; anything touching the payload lands here and ships together as v0.2
       the export from a baseline with temporary effects suppressed so the app gets the
       character's resting values, not a snapshot of mid-fight buffs.
 
+### DM tools backlog: NPC stat block support
+Noted 2026-08-29: the app's sheet UI is essentially a PLAYER character sheet. NPCs (the
+Shrub and every monster) render through the same layout today, which works but undersells
+stat blocks, especially higher CR ones. A dedicated NPC render is a DM-facing feature
+track of its own.
+
+- [ ] Payload: NPC-specific fields the mapper does not pull yet, notably legendary
+      action and legendary resistance pools (dnd5e keeps them in
+      `system.resources.legact` / `legres` / `lair`, separate from PC resources) and
+      identifying legendary/lair/reaction actions among feat items (dnd5e marks them
+      via activation type).
+- [ ] App: an NPC stat block layout (CR prominent, action categories: Actions,
+      Legendary Actions, Reactions, Lair Actions; legendary resistance tracker pips).
+      DM quality of life: the GM's phone as a monster reference at the table.
+
 ### M4: Release engineering
 - [ ] `release.yml`: on published GitHub Release, stamp `version`/`download` into
       `module.json`, build `module.zip`, attach both to the release. Stable manifest URL:
