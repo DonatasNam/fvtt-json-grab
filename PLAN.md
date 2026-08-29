@@ -262,10 +262,15 @@ tweaks only; anything touching the payload lands here and ships together as v0.2
       Ship as arrays of display strings localized at export time via CONFIG.DND5E
       lookups (dnd5e nests language and proficiency ids, so map inside Foundry, not in
       the app). App shows only populated groups and hides the card when all are empty.
-- [ ] **Feature descriptions** (added 2026-08-29): include `description` on feat-type
-      item entries the way spells already carry it, so the app's Feats tab can expand
-      a feature to read what it does (Bardic Inspiration and friends). Consider gear
-      descriptions at the same time, weighing payload size.
+- [ ] **Item and feature descriptions** (added 2026-08-29, broadened same day): include
+      `description` on ALL item entries the way spells already carry it, so the app can
+      expand features (Bardic Inspiration and friends) and gear alike to read what they
+      do. Watch payload size on item-heavy characters.
+- [ ] **Sanitize temporary effects** (added 2026-08-29): the payload is built from the
+      PREPARED actor, so temporary active effects (buff spells, conditions applied at
+      share time) currently bake into the derived numbers (AC, abilities, speed). Build
+      the export from a baseline with temporary effects suppressed so the app gets the
+      character's resting values, not a snapshot of mid-fight buffs.
 
 ### M4: Release engineering
 - [ ] `release.yml`: on published GitHub Release, stamp `version`/`download` into
